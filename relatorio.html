@@ -161,6 +161,74 @@
   .mini-part .barra { flex: 1; min-width: 60px; height: 6px; }
   .tag-lider { display: inline-block; margin-left: 6px; font-size: 10.5px; font-weight: 800; border-radius: 999px; padding: 2px 7px; vertical-align: 1px; }
 
+  /* Login */
+  .login { max-width: 460px; margin: -76px auto 48px; padding: 0 16px; position: relative; z-index: 2; }
+  .login .painel { padding: 28px 24px 26px; }
+  .login h2 { font-size: 24px; margin-bottom: 6px; letter-spacing: -.015em; }
+  .login .desc { font-size: 14px; color: var(--texto-2); margin-bottom: 0; }
+  .login label { display: block; font-weight: 700; font-size: 14px; margin: 22px 0 8px; }
+  .login input {
+    width: 100%; font: inherit; font-size: 17px; color: var(--texto);
+    padding: 14px 16px; border-radius: 14px; border: 2px solid var(--cinza); background: #fafafc;
+  }
+  .login input:focus { outline: none; border-color: var(--azul); background: #fff; box-shadow: 0 0 0 4px rgba(79,72,236,.14); }
+  .login input.codigo { font-size: 26px; font-weight: 800; letter-spacing: .45em; text-align: center; }
+  .btn-grande {
+    display: block; width: 100%; margin-top: 18px; padding: 15px; border: 0; border-radius: 14px; cursor: pointer;
+    font: inherit; font-weight: 800; font-size: 16px; background: var(--amarelo); color: var(--navy);
+  }
+  .btn-grande:disabled { opacity: .5; cursor: default; }
+  .btn-grande:focus-visible, .link:focus-visible { outline: 3px solid var(--azul); outline-offset: 3px; }
+  .link { background: none; border: 0; font: inherit; font-size: 14px; font-weight: 600; color: var(--texto-2); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 4px 6px; }
+  .links { display: flex; justify-content: center; gap: 14px; margin-top: 14px; flex-wrap: wrap; }
+  .msg { display: none; margin-top: 14px; padding: 11px 14px; border-radius: 12px; font-size: 14px; font-weight: 600; }
+  .msg.on { display: block; }
+  .msg.erro-m { background: #fdeeec; color: #9c2a1f; }
+  .msg.ok-m { background: #e3f6ec; color: #17693f; }
+  .cadeado { width: 52px; height: 52px; border-radius: 16px; background: #eeedfd; color: var(--azul); display: grid; place-items: center; margin-bottom: 16px; }
+  .cadeado svg { width: 26px; height: 26px; }
+  .oculto { display: none !important; }
+  .usuario { font-size: 13px; color: rgba(255,255,255,.75); font-weight: 600; }
+  .btn-sair { background: none; border: 1px solid rgba(255,255,255,.25); color: #fff; border-radius: 12px; padding: 8px 14px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+
+  /* Celular */
+  @media (max-width: 640px) {
+    .hero { padding: 20px 16px 92px; }
+    .marca { margin-bottom: 24px; }
+    .topo { flex-direction: column; align-items: stretch; gap: 14px; }
+    .acoes { width: 100%; }
+    .filtro { flex: 1 1 100%; }
+    .filtro select { width: 100%; max-width: none; }
+    .atualizado { text-align: left; }
+    .conteudo, .login { margin-top: -64px; padding: 0 12px; gap: 12px; }
+    .kpis { gap: 10px; }
+    .kpi { padding: 14px 14px 12px; border-radius: 16px; }
+    .kpi .num { font-size: 32px; }
+    .kpi .rot { font-size: 12px; }
+    .kpi .ic { width: 26px; height: 26px; border-radius: 8px; }
+    .kpi .cab { flex-wrap: wrap; }
+    .painel { padding: 18px 16px; border-radius: 16px; }
+    .rosca-wrap { gap: 18px; }
+    .rosca { width: 170px; height: 170px; }
+    .legenda { min-width: 0; width: 100%; }
+    .colunas { gap: 6px; height: 170px; }
+    .dias { gap: 6px; }
+    .dias span { font-size: 10px; }
+    .part { grid-template-columns: 1fr; gap: 8px; }
+
+    /* Tabela vira cartões */
+    .tabela-wrap { overflow: visible; margin: 0; }
+    .tabela { min-width: 0; }
+    .tabela thead { display: none; }
+    .tabela, .tabela tbody, .tabela tr, .tabela td { display: block; width: 100%; }
+    .tabela tr { padding: 12px 4px; border-bottom: 1px solid var(--trilho); }
+    .tabela td { border: 0; padding: 4px 6px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .tabela td::before { content: attr(data-label); font-size: 12px; font-weight: 600; color: var(--texto-3); }
+    .tabela td.obra { font-size: 16px; padding-bottom: 8px; }
+    .tabela td.obra::before { content: none; }
+    .tabela td .split, .tabela td .mini-part { width: 62%; min-width: 0; }
+  }
+
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 </head>
@@ -176,9 +244,9 @@
       <div>
         <h1>Resultado da votação</h1>
         <p>Proposta de nova jornada de trabalho</p>
-        <span class="mostrando" id="mostrando">Todas as obras</span>
+        <span class="mostrando oculto" id="mostrando">Todas as obras</span>
       </div>
-      <div class="acoes">
+      <div class="acoes oculto" id="acoes">
         <label class="filtro">
           <select id="filtro-obra" aria-label="Filtrar por obra"><option value="">Todas as obras</option></select>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
@@ -188,13 +256,33 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
           Atualizar
         </button>
+        <span class="usuario" id="usuario"></span>
+        <button class="btn-sair" id="btn-sair" type="button">Sair</button>
         <div class="atualizado" id="atualizado">&nbsp;</div>
       </div>
     </div>
   </div>
 </header>
 
-<main class="conteudo">
+<section class="login" id="login">
+  <div class="painel">
+    <div class="cadeado" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+    </div>
+
+    <div id="passo-email">
+      <h2>Acesso restrito</h2>
+      <p class="desc">O relatório é exclusivo para gestores autorizados. Entre com o seu e-mail.</p>
+      <label for="g-email">E-mail</label>
+      <input id="g-email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="seu.nome@wanderleyconstrucoes.com.br">
+      <button class="btn-grande" id="btn-entrar" type="button">Entrar</button>
+    </div>
+
+    <div class="msg" id="msg-login" role="alert"></div>
+  </div>
+</section>
+
+<main class="conteudo oculto" id="painel-relatorio">
   <div class="erro" id="erro" role="alert"></div>
 
   <section class="kpis" aria-label="Indicadores">
@@ -291,7 +379,6 @@
 </main>
 
 <script>
-  const CHAVE = 'wdly-horario-8k3p9x';
   // Comunicação com o Apps Script (API). Não usa login do Google, então funciona com qualquer conta logada.
   const API = 'https://script.google.com/macros/s/AKfycbzdGKSp-gQideUpT4E2pNYbp1fLTmSEU8L4NTZnunx0jSdwkzykc14KFWPX23tL9oSm/exec';
   async function api(dados) {
@@ -394,11 +481,11 @@
         : '<span class="tag-lider" style="background:#fff5d9;color:#a87700">Opção 2</span>');
       return '<tr tabindex="0" data-obra="' + esc(o.nome) + '"' + (o.nome === filtro ? ' class="ativa"' : '') + '>' +
         '<td class="obra">' + esc(o.nome) + (t ? lider : '') + '</td>' +
-        '<td class="num">' + o.o1 + '</td>' +
-        '<td class="num">' + o.o2 + '</td>' +
-        '<td class="num">' + t + '</td>' +
-        '<td><div class="split">' + (t ? '<b style="width:' + p1 + '%;background:#4f48ec"></b><b style="width:' + p2 + '%;background:#ffbf18"></b>' : '') + '</div></td>' +
-        '<td><div class="mini-part"><div class="barra"><i style="width:' + Math.min(pp, 100) + '%"></i></div>' + t + '/' + o.aptos + '</div></td>' +
+        '<td class="num" data-label="Opção 1">' + o.o1 + '</td>' +
+        '<td class="num" data-label="Opção 2">' + o.o2 + '</td>' +
+        '<td class="num" data-label="Votos">' + t + '</td>' +
+        '<td data-label="Divisão"><div class="split">' + (t ? '<b style="width:' + p1 + '%;background:#4f48ec"></b><b style="width:' + p2 + '%;background:#ffbf18"></b>' : '') + '</div></td>' +
+        '<td data-label="Participação"><div class="mini-part"><div class="barra"><i style="width:' + Math.min(pp, 100) + '%"></i></div>' + t + '/' + o.aptos + '</div></td>' +
       '</tr>';
     }).join('');
     document.querySelectorAll('#tbody-obras tr[data-obra]').forEach(tr => {
@@ -414,7 +501,9 @@
     sel.innerHTML = '<option value="">Todas as obras</option>' +
       obras.map(o => '<option value="' + esc(o.nome) + '">' + esc(o.nome) + '</option>').join('');
     sel.value = filtro;
-    $('mostrando').textContent = filtro || 'Todas as obras';
+    const escopo = DADOS && DADOS.escopo;
+    $('mostrando').textContent = filtro || (escopo ? 'Suas obras: ' + escopo.join(', ') : 'Todas as obras');
+    sel.options[0].textContent = escopo ? 'Todas as minhas obras' : 'Todas as obras';
   }
 
   function render() {
@@ -425,6 +514,7 @@
     $('status').classList.toggle('fechada', !DADOS.aberta);
     $('status').querySelector('span').textContent = DADOS.aberta ? 'Votação aberta' : 'Votação encerrada';
     $('atualizado').textContent = 'Atualizado às ' + DADOS.atualizadoEm;
+    $('usuario').textContent = DADOS.gestor ? 'Olá, ' + DADOS.gestor : '';
   }
 
   function aplicarFiltro(valor) {
@@ -433,14 +523,77 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  /* ---------- Sessão do gestor ---------- */
+  const CHAVE_SESSAO = 'wdly_relatorio_token';
+  let token = '';
+  let timer = null;
+  try { token = localStorage.getItem(CHAVE_SESSAO) || ''; } catch (e) { token = ''; }
+
+  function salvarToken(t) {
+    token = t || '';
+    try { t ? localStorage.setItem(CHAVE_SESSAO, t) : localStorage.removeItem(CHAVE_SESSAO); } catch (e) {}
+  }
+
+  function msgLogin(texto, tipo) {
+    const m = $('msg-login');
+    m.textContent = texto || '';
+    m.className = 'msg' + (texto ? ' on ' + (tipo === 'ok' ? 'ok-m' : 'erro-m') : '');
+  }
+
+  function mostrarLogin(aviso) {
+    clearInterval(timer); timer = null;
+    $('painel-relatorio').classList.add('oculto');
+    $('acoes').classList.add('oculto');
+    $('mostrando').classList.add('oculto');
+    $('login').classList.remove('oculto');
+    msgLogin(aviso || '', 'erro');
+  }
+
+  function mostrarRelatorio() {
+    $('login').classList.add('oculto');
+    $('painel-relatorio').classList.remove('oculto');
+    $('acoes').classList.remove('oculto');
+    $('mostrando').classList.remove('oculto');
+    if (!timer) timer = setInterval(carregar, 30000);
+  }
+
+  function ocupado(btn, on, texto) { btn.disabled = on; btn.textContent = texto; }
+
+  function entrar() {
+    const btn = $('btn-entrar');
+    const valor = $('g-email').value.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor)) return msgLogin('Digite um e-mail válido.');
+    msgLogin('');
+    ocupado(btn, true, 'Entrando…');
+    api({ acao: 'gestor_entrar', email: valor })
+      .then(r => {
+        ocupado(btn, false, 'Entrar');
+        if (!r.ok) return msgLogin(r.msg);
+        salvarToken(r.token);
+        mostrarRelatorio();
+        carregar();
+      })
+      .catch(() => { ocupado(btn, false, 'Entrar'); msgLogin('Não foi possível conectar. Tente de novo.'); });
+  }
+
+  function sair() {
+    salvarToken('');
+    DADOS = null;
+    mostrarLogin('');
+    $('g-email').value = '';
+  }
+
   function carregar() {
+    if (!token) return mostrarLogin('');
     const btn = $('btn-atualizar');
     btn.disabled = true; btn.classList.add('girando');
-    api({ acao: 'resultados', chave: CHAVE })
+    api({ acao: 'resultados', token: token })
       .then(r => {
         btn.disabled = false; btn.classList.remove('girando');
+        if (!r.ok && r.sessao === false) { salvarToken(''); return mostrarLogin(r.msg); }
         if (!r.ok) throw new Error(r.msg);
         $('erro').classList.remove('on');
+        mostrarRelatorio();
         DADOS = r.dados; render();
       })
       .catch(err => {
@@ -451,10 +604,12 @@
       });
   }
 
+  $('btn-entrar').addEventListener('click', entrar);
+  $('g-email').addEventListener('keydown', e => { if (e.key === 'Enter') entrar(); });
+  $('btn-sair').addEventListener('click', sair);
   $('filtro-obra').addEventListener('change', e => aplicarFiltro(e.target.value));
   $('btn-atualizar').addEventListener('click', carregar);
-  carregar();
-  setInterval(carregar, 30000);
+  if (token) carregar(); else mostrarLogin('');
 </script>
 </body>
 </html>

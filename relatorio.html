@@ -1,8 +1,17 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<base target="_top">
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Resultado da votação | Wanderley Construções</title>
+<meta name="description" content="Acompanhe o resultado da votação da nova jornada de trabalho.">
+<meta property="og:title" content="Resultado da votação | Wanderley Construções">
+<meta property="og:description" content="Acompanhe o resultado da votação da nova jornada de trabalho.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#100e34">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -160,11 +169,7 @@
 <header class="hero">
   <div class="hero-in">
     <div class="marca">
-      <? if (logo) { ?>
-        <img src="<?!= logo ?>" alt="Wanderley Construções">
-      <? } else { ?>
-        <span class="w" aria-hidden="true">W</span>
-      <? } ?>
+      <img src="favicon.png" alt="Wanderley Construções">
       <span>Wanderley Construções</span>
     </div>
     <div class="topo">
@@ -286,7 +291,14 @@
 </main>
 
 <script>
-  const CHAVE = <?!= JSON.stringify(chave) ?>;
+  const CHAVE = 'wdly-horario-8k3p9x';
+  // Comunicação com o Apps Script (API). Não usa login do Google, então funciona com qualquer conta logada.
+  const API = 'https://script.google.com/macros/s/AKfycbzdGKSp-gQideUpT4E2pNYbp1fLTmSEU8L4NTZnunx0jSdwkzykc14KFWPX23tL9oSm/exec';
+  async function api(dados) {
+    const resp = await fetch(API, { method: 'POST', body: JSON.stringify(dados) });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    return resp.json();
+  }
   const $ = (id) => document.getElementById(id);
   const pct = (a, b) => (b ? (a / b) * 100 : 0);
   const fmt = (n) => (Math.round(n * 10) / 10).toString().replace('.', ',') + '%';
@@ -421,22 +433,22 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function carregar() { 
+  function carregar() {
     const btn = $('btn-atualizar');
     btn.disabled = true; btn.classList.add('girando');
-    google.script.run
-      .withSuccessHandler(r => {
+    api({ acao: 'resultados', chave: CHAVE })
+      .then(r => {
         btn.disabled = false; btn.classList.remove('girando');
+        if (!r.ok) throw new Error(r.msg);
         $('erro').classList.remove('on');
-        DADOS = r; render();
+        DADOS = r.dados; render();
       })
-      .withFailureHandler(err => {
+      .catch(err => {
         btn.disabled = false; btn.classList.remove('girando');
         const e = $('erro');
         e.textContent = 'Não foi possível carregar os dados: ' + (err && err.message ? err.message : 'erro de conexão') + '. Tente atualizar.';
         e.classList.add('on');
-      })
-      .getResultados(CHAVE);
+      });
   }
 
   $('filtro-obra').addEventListener('change', e => aplicarFiltro(e.target.value));

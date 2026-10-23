@@ -1,8 +1,16 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<base target="_top">
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Votação de horário | Wanderley Construções</title>
+<meta name="description" content="Escolha a jornada de trabalho que você prefere. Leva menos de um minuto.">
+<meta property="og:title" content="Votação de horário | Wanderley Construções">
+<meta property="og:description" content="Escolha a jornada de trabalho que você prefere. Leva menos de um minuto.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#100e34">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -181,11 +189,7 @@
 <header class="hero">
   <div class="hero-in">
     <div class="marca">
-      <? if (logo) { ?>
-        <img src="<?!= logo ?>" alt="Wanderley Construções">
-      <? } else { ?>
-        <span class="w" aria-hidden="true">W</span>
-      <? } ?>
+      <img src="favicon.png" alt="Wanderley Construções">
       <span>Wanderley Construções</span>
     </div>
     <h1>Qual jornada de trabalho você prefere?</h1>
@@ -270,7 +274,13 @@
 <canvas id="confete" aria-hidden="true"></canvas>
 
 <script>
-  const ABERTA = <?!= aberta ? "true" : "false" ?>;
+  // Comunicação com o Apps Script (API). Não usa login do Google, então funciona com qualquer conta logada.
+  const API = 'https://script.google.com/macros/s/AKfycbzdGKSp-gQideUpT4E2pNYbp1fLTmSEU8L4NTZnunx0jSdwkzykc14KFWPX23tL9oSm/exec';
+  async function api(dados) {
+    const resp = await fetch(API, { method: 'POST', body: JSON.stringify(dados) });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    return resp.json();
+  }
 
   // Horas em formato decimal (7.5 = 07:30)
   const OPCOES = [
@@ -363,24 +373,23 @@
     if (!RE_EMAIL.test(valor)) return erro('erro-email', 'Confira o e-mail: ele precisa ter o formato nome@dominio.com.');
 
     carregando(btn, true, 'Verificando…');
-    google.script.run
-      .withSuccessHandler(r => {
+    api({ acao: 'verificar', email: valor })
+      .then(r => {
         carregando(btn, false, 'Continuar');
         if (!r.ok) return erro('erro-email', r.msg);
         email = valor;
         $('saudacao').textContent = r.primeiroNome ? 'Olá, ' + r.primeiroNome + '!' : 'Escolha sua jornada';
         mostrar('tela-voto');
       })
-      .withFailureHandler(falha('erro-email', btn, 'Continuar'))
-      .verificarEmail(valor);
+      .catch(falha('erro-email', btn, 'Continuar'));
   }
 
   function votar() {
     if (!escolha) return;
     const btn = $('btn-votar');
     carregando(btn, true, 'Registrando…');
-    google.script.run
-      .withSuccessHandler(r => {
+    api({ acao: 'votar', email: email, opcao: escolha })
+      .then(r => {
         carregando(btn, false, 'Confirmar voto');
         if (!r.ok) return erro('erro-voto', r.msg);
         const o = OPCOES.find(x => x.id === r.opcao);
@@ -391,8 +400,7 @@
         mostrar('tela-ok');
         confete();
       })
-      .withFailureHandler(falha('erro-voto', btn, 'Confirmar voto'))
-      .registrarVoto(email, escolha);
+      .catch(falha('erro-voto', btn, 'Confirmar voto'));
   }
 
   // Confete nas cores da Wanderley
@@ -434,7 +442,10 @@
   $('btn-votar').addEventListener('click', votar);
 
   renderOpcoes();
-  mostrar(ABERTA ? 'tela-email' : 'tela-encerrada');
+  mostrar('tela-email');
+  api({ acao: 'status' })
+    .then(r => { if (r.ok && !r.aberta) mostrar('tela-encerrada'); })
+    .catch(() => { /* sem conexão agora: o erro aparece ao tentar continuar */ });
 </script>
 </body>
 </html>

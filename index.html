@@ -1,40 +1,440 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+<base target="_top">
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Votação de horário | Wanderley Construções</title>
-<meta name="description" content="Escolha a jornada de trabalho que você prefere. Leva menos de um minuto.">
-<meta property="og:title" content="Votação de horário | Wanderley Construções">
-<meta property="og:description" content="Escolha a jornada de trabalho que você prefere. Leva menos de um minuto.">
-<meta property="og:type" content="website">
-<meta name="theme-color" content="#100e34">
-<link rel="icon" type="image/png" href="favicon.png">
-<link rel="apple-touch-icon" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  html, body { margin: 0; height: 100%; background: #f3f3f7; }
-  iframe { border: 0; width: 100%; height: 100%; display: block; }
-  .carregando {
-    position: fixed; inset: 0; display: grid; place-items: center;
-    background: #100e34; transition: opacity .3s ease;
+  :root {
+    --navy: #100e34;
+    --azul: #4f48ec;
+    --amarelo: #ffbf18;
+    --cinza: #e6e6e6;
+    --fundo: #f3f3f7;
+    --branco: #ffffff;
+    --texto: #100e34;
+    --texto-2: #5d5b7d;
+    --texto-3: #8f8daa;
+    --erro: #d93a2b;
+    --sombra: 0 24px 60px -28px rgba(16, 14, 52, .45), 0 2px 6px rgba(16, 14, 52, .05);
+    --fonte: "Plus Jakarta Sans", "Segoe UI", Roboto, Arial, sans-serif;
   }
-  .carregando.some { opacity: 0; pointer-events: none; }
-  .carregando span {
-    width: 42px; height: 42px; border-radius: 50%;
-    border: 4px solid rgba(255,191,24,.25); border-top-color: #ffbf18;
-    animation: gira .8s linear infinite;
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--fundo); color: var(--texto); font-family: var(--fonte); font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  body { min-height: 100vh; }
+
+  /* ---------- Faixa superior ---------- */
+  .hero {
+    position: relative; overflow: hidden;
+    background: var(--navy); color: #fff;
+    padding: 28px 20px 108px;
   }
+  .hero::before {
+    content: ""; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px);
+    background-size: 32px 32px;
+    mask-image: linear-gradient(180deg, #000 30%, transparent);
+    -webkit-mask-image: linear-gradient(180deg, #000 30%, transparent);
+  }
+  .hero::after {
+    content: ""; position: absolute; width: 520px; height: 520px; right: -200px; top: -260px;
+    background: radial-gradient(circle, rgba(79,72,236,.55), transparent 65%);
+  }
+  .hero-in { position: relative; z-index: 1; max-width: 580px; margin: 0 auto; }
+  .marca { display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
+  .marca img { height: 58px; width: auto; display: block; }
+  .marca .w { font-weight: 800; font-size: 34px; line-height: 1; color: var(--amarelo); }
+  .marca span { font-weight: 600; font-size: 15px; color: rgba(255,255,255,.82); }
+  .hero h1 { font-weight: 800; font-size: clamp(30px, 7.4vw, 42px); line-height: 1.12; letter-spacing: -.02em; max-width: 16ch; }
+  .hero h1::after { content: ""; display: block; width: 56px; height: 5px; border-radius: 3px; background: var(--amarelo); margin-top: 18px; }
+  .hero p { margin-top: 16px; color: rgba(255,255,255,.75); max-width: 42ch; }
+
+  /* ---------- Cartão principal ---------- */
+  .painel {
+    position: relative; z-index: 2;
+    max-width: 580px; margin: -72px auto 0; padding: 0 16px;
+  }
+  .card { background: var(--branco); border-radius: 22px; box-shadow: var(--sombra); padding: 28px 24px 26px; }
+  @media (min-width: 560px) { .card { padding: 34px 34px 30px; } }
+
+  .progresso { display: flex; align-items: center; gap: 10px; margin-bottom: 26px; }
+  .progresso .seg { flex: 1; height: 6px; border-radius: 3px; background: var(--cinza); overflow: hidden; }
+  .progresso .seg i { display: block; height: 100%; width: 0; background: var(--azul); border-radius: 3px; transition: width .45s ease; }
+  .progresso .seg.feito i { width: 100%; }
+  .progresso small { font-size: 13px; font-weight: 600; color: var(--texto-3); white-space: nowrap; }
+
+  h2 { font-weight: 800; font-size: 26px; line-height: 1.2; letter-spacing: -.015em; }
+  .sub { color: var(--texto-2); margin-top: 6px; }
+
+  .tela { display: none; }
+  .tela.ativa { display: block; animation: entra .4s ease both; }
+  @keyframes entra { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+  /* ---------- Campo de e-mail ---------- */
+  .campo { margin-top: 24px; }
+  .campo label { display: block; font-weight: 700; font-size: 14px; margin-bottom: 8px; }
+  .input { position: relative; }
+  .input svg { position: absolute; left: 16px; top: 50%; width: 20px; height: 20px; transform: translateY(-50%); color: var(--texto-3); pointer-events: none; }
+  .input input {
+    width: 100%; font: inherit; font-size: 17px; color: var(--texto);
+    padding: 15px 16px 15px 48px; border-radius: 14px;
+    border: 2px solid var(--cinza); background: #fafafc;
+    transition: border-color .15s, box-shadow .15s, background-color .15s;
+  }
+  .input input::placeholder { color: #a9a8bf; }
+  .input input:focus { outline: none; border-color: var(--azul); background: #fff; box-shadow: 0 0 0 4px rgba(79,72,236,.14); }
+  .input.invalido input { border-color: var(--erro); }
+  .ajuda { font-size: 13px; color: var(--texto-3); margin-top: 8px; }
+  .erro { display: none; gap: 8px; align-items: flex-start; margin-top: 14px; padding: 11px 14px; border-radius: 12px; background: #fdeeec; color: #9c2a1f; font-size: 14px; font-weight: 600; }
+  .erro.on { display: flex; }
+  .erro svg { flex: none; width: 18px; height: 18px; margin-top: 1px; }
+
+  /* ---------- Botões ---------- */
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; margin-top: 22px; padding: 16px 18px;
+    font: inherit; font-weight: 800; font-size: 17px; letter-spacing: .005em;
+    background: var(--amarelo); color: var(--navy);
+    border: 0; border-radius: 14px; cursor: pointer;
+    box-shadow: 0 10px 24px -12px rgba(255,191,24,.9);
+    transition: transform .12s ease, box-shadow .15s, opacity .15s;
+  }
+  .btn:hover:not(:disabled) { box-shadow: 0 14px 28px -12px rgba(255,191,24,1); }
+  .btn:active:not(:disabled) { transform: scale(.985); }
+  .btn:disabled { opacity: .45; cursor: default; box-shadow: none; }
+  .btn:focus-visible, .link:focus-visible { outline: 3px solid var(--azul); outline-offset: 3px; }
+  .spin { width: 18px; height: 18px; border-radius: 50%; border: 2.5px solid rgba(16,14,52,.25); border-top-color: var(--navy); animation: gira .7s linear infinite; display: none; }
+  .btn.carregando .spin { display: block; }
   @keyframes gira { to { transform: rotate(360deg); } }
+  .link { display: block; margin: 16px auto 0; background: none; border: 0; font: inherit; font-size: 14px; font-weight: 600; color: var(--texto-2); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 4px 6px; }
+
+  /* ---------- Opções ---------- */
+  .opcoes { display: grid; gap: 14px; margin-top: 22px; }
+  .opcao {
+    position: relative; display: block; cursor: pointer;
+    border: 2px solid var(--cinza); border-radius: 18px; padding: 18px 18px 16px;
+    background: #fff;
+    transition: border-color .15s, background-color .15s, box-shadow .15s, transform .12s;
+  }
+  .opcao:hover { border-color: #c9c8e6; }
+  .opcao:active { transform: scale(.995); }
+  .opcao input { position: absolute; opacity: 0; pointer-events: none; }
+  .opcao.sel { border-color: var(--azul); background: #f6f5ff; box-shadow: 0 0 0 4px rgba(79,72,236,.12); }
+  .opcao.foco { outline: 3px solid var(--azul); outline-offset: 3px; }
+
+  .op-topo { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .op-tag { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; font-size: 15px; }
+  .op-tag b { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 9px; background: var(--navy); color: var(--amarelo); font-size: 14px; }
+  .check { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #cfcee3; display: grid; place-items: center; transition: all .15s; }
+  .check svg { width: 14px; height: 14px; color: #fff; opacity: 0; transform: scale(.6); transition: all .15s; }
+  .opcao.sel .check { background: var(--azul); border-color: var(--azul); }
+  .opcao.sel .check svg { opacity: 1; transform: none; }
+
+  .turno { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 12px; padding: 12px 0; }
+  .turno + .turno { border-top: 1px dashed #dddce9; }
+  .dias { font-weight: 600; font-size: 14px; color: var(--texto-2); }
+  .horario { display: flex; align-items: center; gap: 10px; }
+  .hora { text-align: center; }
+  .hora strong { display: block; font-weight: 800; font-size: 22px; line-height: 1.1; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+  .hora span { display: block; font-size: 11px; font-weight: 600; color: var(--texto-3); margin-top: 2px; }
+  .traco { position: relative; width: 34px; height: 2px; background: #d5d4e6; border-radius: 1px; margin-bottom: 14px; }
+  .traco::before, .traco::after { content: ""; position: absolute; top: 50%; width: 7px; height: 7px; border-radius: 50%; transform: translateY(-50%); background: var(--azul); }
+  .traco::before { left: -3px; }
+  .traco::after { right: -3px; background: var(--amarelo); }
+  @media (max-width: 380px) {
+    .turno { grid-template-columns: 1fr; gap: 6px; }
+    .horario { justify-content: flex-start; }
+  }
+
+  /* ---------- Confirmação ---------- */
+  .sucesso { text-align: center; padding-top: 4px; }
+  .selo { width: 84px; height: 84px; margin: 0 auto 20px; border-radius: 50%; background: var(--amarelo); display: grid; place-items: center; box-shadow: 0 0 0 10px rgba(255,191,24,.18); animation: pulsa .6s ease both; }
+  .selo svg { width: 40px; height: 40px; }
+  .selo path { stroke-dasharray: 40; stroke-dashoffset: 40; animation: traca .5s .25s ease-out forwards; }
+  @keyframes traca { to { stroke-dashoffset: 0; } }
+  @keyframes pulsa { 0% { transform: scale(.6); opacity: 0; } 70% { transform: scale(1.06); opacity: 1; } 100% { transform: scale(1); } }
+  .resumo { margin-top: 22px; text-align: left; border-radius: 16px; border: 2px solid var(--cinza); padding: 4px 18px; }
+  .resumo .titulo { display: flex; align-items: center; gap: 8px; font-weight: 800; padding: 14px 0 4px; }
+  .resumo .titulo b { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 8px; background: var(--navy); color: var(--amarelo); font-size: 13px; }
+  .fechar { margin-top: 18px; font-size: 14px; color: var(--texto-3); }
+
+  .encerrada { text-align: center; padding: 10px 0; }
+  .encerrada .icone { width: 64px; height: 64px; margin: 0 auto 16px; border-radius: 50%; background: #efeff6; display: grid; place-items: center; color: var(--texto-2); }
+
+  footer { max-width: 580px; margin: 22px auto 40px; padding: 0 20px; text-align: center; font-size: 13px; color: var(--texto-3); }
+  footer svg { width: 14px; height: 14px; vertical-align: -2px; margin-right: 4px; }
+
+  #confete { position: fixed; inset: 0; pointer-events: none; z-index: 10; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .selo path { stroke-dashoffset: 0; }
+  }
 </style>
 </head>
 <body>
-<iframe id="app" title="Votação de horário"
-  src="https://script.google.com/macros/s/AKfycbzdGKSp-gQideUpT4E2pNYbp1fLTmSEU8L4NTZnunx0jSdwkzykc14KFWPX23tL9oSm/exec"></iframe>
-<div class="carregando" id="carregando" aria-hidden="true"><span></span></div>
+
+<header class="hero">
+  <div class="hero-in">
+    <div class="marca">
+      <? if (logo) { ?>
+        <img src="<?!= logo ?>" alt="Wanderley Construções">
+      <? } else { ?>
+        <span class="w" aria-hidden="true">W</span>
+      <? } ?>
+      <span>Wanderley Construções</span>
+    </div>
+    <h1>Qual jornada de trabalho você prefere?</h1>
+    <p>A empresa está avaliando duas propostas de horário. Seu voto ajuda a decidir e leva menos de um minuto.</p>
+  </div>
+</header>
+
+<div class="painel">
+  <div class="card">
+
+    <div class="progresso" id="progresso" aria-hidden="true">
+      <span class="seg" id="seg1"><i></i></span>
+      <span class="seg" id="seg2"><i></i></span>
+      <small id="etapa">Etapa 1 de 2</small>
+    </div>
+
+    <!-- 1. Identificação -->
+    <section id="tela-email" class="tela">
+      <h2>Identifique-se</h2>
+      <p class="sub">Informe seu e-mail para liberar o voto. Cada colaborador vota uma vez.</p>
+
+      <div class="campo">
+        <label for="email">E-mail</label>
+        <div class="input" id="caixa-email">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg>
+          <input id="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="seu.nome@wanderleyconstrucoes.com.br">
+        </div>
+        <p class="ajuda">Dúvidas sobre o seu e-mail? Fale com o RH.</p>
+      </div>
+
+      <div class="erro" id="erro-email" role="alert">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg>
+        <span></span>
+      </div>
+
+      <button class="btn" id="btn-continuar" type="button"><span class="spin"></span><span class="txt">Continuar</span></button>
+    </section>
+
+    <!-- 2. Voto -->
+    <section id="tela-voto" class="tela">
+      <h2 id="saudacao">Escolha sua jornada</h2>
+      <p class="sub">Compare os horários e toque na opção que você prefere.</p>
+
+      <div class="opcoes" id="opcoes" role="radiogroup" aria-label="Propostas de jornada"></div>
+
+      <div class="erro" id="erro-voto" role="alert">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg>
+        <span></span>
+      </div>
+
+      <button class="btn" id="btn-votar" type="button" disabled><span class="spin"></span><span class="txt">Confirmar voto</span></button>
+    </section>
+
+    <!-- 3. Confirmado -->
+    <section id="tela-ok" class="tela sucesso">
+      <div class="selo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#100e34" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h2>Voto registrado!</h2>
+      <p class="sub" id="agradecimento">Obrigado pela participação.</p>
+      <div class="resumo" id="resumo"></div>
+      <p class="fechar">Pronto, você já pode fechar esta página.</p>
+    </section>
+
+    <!-- Encerrada -->
+    <section id="tela-encerrada" class="tela encerrada">
+      <div class="icone" aria-hidden="true">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      </div>
+      <h2>Votação encerrada</h2>
+      <p class="sub">O prazo para votar terminou. O resultado será divulgado pela empresa.</p>
+    </section>
+
+  </div>
+</div>
+
+<footer>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+  Pesquisa interna da Wanderley Construções. Só você vê o seu voto.
+</footer>
+
+<canvas id="confete" aria-hidden="true"></canvas>
+
 <script>
-  function esconder() { document.getElementById('carregando').classList.add('some'); }
-  document.getElementById('app').addEventListener('load', esconder);
-  setTimeout(esconder, 5000); // nunca deixa o carregamento travado na tela
+  const ABERTA = <?!= aberta ? "true" : "false" ?>;
+
+  // Horas em formato decimal (7.5 = 07:30)
+  const OPCOES = [
+    { id: 1, nome: 'Opção 1', segQui: [7, 16.5], sex: [7, 16] },
+    { id: 2, nome: 'Opção 2', segQui: [7.5, 17], sex: [7.5, 16] },
+  ];
+  const RE_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  let email = '';
+  let escolha = null;
+  const $ = (id) => document.getElementById(id);
+
+  const hora = (h) => {
+    const hh = Math.floor(h), mm = Math.round((h - hh) * 60);
+    return String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
+  };
+
+  const turno = (dias, [a, b]) => `
+    <div class="turno">
+      <div class="dias">${dias}</div>
+      <div class="horario">
+        <div class="hora"><strong>${hora(a)}</strong><span>entrada</span></div>
+        <div class="traco"></div>
+        <div class="hora"><strong>${hora(b)}</strong><span>saída</span></div>
+      </div>
+    </div>`;
+
+  function renderOpcoes() {
+    $('opcoes').innerHTML = OPCOES.map(o => `
+      <label class="opcao" data-id="${o.id}">
+        <input type="radio" name="opcao" value="${o.id}">
+        <div class="op-topo">
+          <span class="op-tag"><b>${o.id}</b>${o.nome}</span>
+          <span class="check"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </div>
+        ${turno('Segunda a quinta', o.segQui)}
+        ${turno('Sexta-feira', o.sex)}
+      </label>`).join('');
+
+    document.querySelectorAll('.opcao input').forEach(inp => {
+      inp.addEventListener('change', () => selecionar(Number(inp.value)));
+      inp.addEventListener('focus', () => inp.closest('.opcao').classList.add('foco'));
+      inp.addEventListener('blur', () => inp.closest('.opcao').classList.remove('foco'));
+    });
+  }
+
+  function selecionar(id) {
+    escolha = id;
+    document.querySelectorAll('.opcao').forEach(el => el.classList.toggle('sel', Number(el.dataset.id) === id));
+    $('btn-votar').disabled = false;
+    erro('erro-voto', '');
+  }
+
+  function erro(id, msg) {
+    const el = $(id);
+    el.querySelector('span').textContent = msg;
+    el.classList.toggle('on', !!msg);
+    if (id === 'erro-email') $('caixa-email').classList.toggle('invalido', !!msg);
+  }
+
+  function carregando(btn, on, texto) {
+    btn.disabled = on;
+    btn.classList.toggle('carregando', on);
+    btn.querySelector('.txt').textContent = texto;
+  }
+
+  function etapa(n) {
+    $('progresso').style.display = n ? '' : 'none';
+    $('seg1').classList.toggle('feito', n >= 1);
+    $('seg2').classList.toggle('feito', n >= 2);
+    $('etapa').textContent = n >= 3 ? 'Concluído' : 'Etapa ' + Math.max(n, 1) + ' de 2';
+  }
+
+  function mostrar(id) {
+    document.querySelectorAll('.tela').forEach(t => t.classList.toggle('ativa', t.id === id));
+    etapa({ 'tela-email': 1, 'tela-voto': 2, 'tela-ok': 3, 'tela-encerrada': 0 }[id]);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  const falha = (alvo, btn, texto) => () => {
+    erro(alvo, 'Não foi possível conectar. Verifique sua internet e tente de novo.');
+    carregando(btn, false, texto);
+  };
+
+  function continuar() {
+    const btn = $('btn-continuar');
+    const valor = $('email').value.trim().toLowerCase();
+    erro('erro-email', '');
+    if (!valor) return erro('erro-email', 'Digite seu e-mail para continuar.');
+    if (!RE_EMAIL.test(valor)) return erro('erro-email', 'Confira o e-mail: ele precisa ter o formato nome@dominio.com.');
+
+    carregando(btn, true, 'Verificando…');
+    google.script.run
+      .withSuccessHandler(r => {
+        carregando(btn, false, 'Continuar');
+        if (!r.ok) return erro('erro-email', r.msg);
+        email = valor;
+        $('saudacao').textContent = r.primeiroNome ? 'Olá, ' + r.primeiroNome + '!' : 'Escolha sua jornada';
+        mostrar('tela-voto');
+      })
+      .withFailureHandler(falha('erro-email', btn, 'Continuar'))
+      .verificarEmail(valor);
+  }
+
+  function votar() {
+    if (!escolha) return;
+    const btn = $('btn-votar');
+    carregando(btn, true, 'Registrando…');
+    google.script.run
+      .withSuccessHandler(r => {
+        carregando(btn, false, 'Confirmar voto');
+        if (!r.ok) return erro('erro-voto', r.msg);
+        const o = OPCOES.find(x => x.id === r.opcao);
+        $('agradecimento').textContent = (r.primeiroNome ? 'Obrigado, ' + r.primeiroNome + '. ' : '') + 'Sua escolha foi:';
+        $('resumo').innerHTML =
+          '<div class="titulo"><b>' + o.id + '</b>' + o.nome + '</div>' +
+          turno('Segunda a quinta', o.segQui) + turno('Sexta-feira', o.sex);
+        mostrar('tela-ok');
+        confete();
+      })
+      .withFailureHandler(falha('erro-voto', btn, 'Confirmar voto'))
+      .registrarVoto(email, escolha);
+  }
+
+  // Confete nas cores da Wanderley
+  function confete() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const cv = $('confete'), ctx = cv.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    cv.width = innerWidth * dpr; cv.height = innerHeight * dpr;
+    ctx.scale(dpr, dpr);
+    const cores = ['#ffbf18', '#4f48ec', '#100e34', '#ffd666', '#8b86f5'];
+    const ps = Array.from({ length: 140 }, () => ({
+      x: innerWidth / 2 + (Math.random() - .5) * 120,
+      y: innerHeight * .32,
+      vx: (Math.random() - .5) * 13,
+      vy: -Math.random() * 13 - 4,
+      w: 6 + Math.random() * 6, h: 8 + Math.random() * 8,
+      r: Math.random() * Math.PI, vr: (Math.random() - .5) * .3,
+      c: cores[(Math.random() * cores.length) | 0],
+    }));
+    const ini = performance.now();
+    (function passo(t) {
+      const dt = t - ini;
+      ctx.clearRect(0, 0, innerWidth, innerHeight);
+      ps.forEach(p => {
+        p.vy += .32; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.r += p.vr;
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, 1 - dt / 2600);
+        ctx.translate(p.x, p.y); ctx.rotate(p.r);
+        ctx.fillStyle = p.c; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
+      });
+      if (dt < 2600) requestAnimationFrame(passo);
+      else ctx.clearRect(0, 0, innerWidth, innerHeight);
+    })(ini);
+  }
+
+  $('btn-continuar').addEventListener('click', continuar);
+  $('email').addEventListener('keydown', e => { if (e.key === 'Enter') continuar(); });
+  $('btn-votar').addEventListener('click', votar);
+
+  renderOpcoes();
+  mostrar(ABERTA ? 'tela-email' : 'tela-encerrada');
 </script>
 </body>
 </html>
